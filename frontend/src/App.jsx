@@ -1,33 +1,56 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Sidebar from "./components/Layout/Sidebar";
+import Header from "./components/Layout/Header";
+import Dashboard from "./pages/Dashboard";
+import Cars from "./pages/Cars";
+import Categories from "./pages/Categories";
+import Orders from "./pages/Orders";
 import "./App.css";
-import CarList from "./CarList.jsx";
-import CarForm from "./CarForm.jsx";
-import Header from "./Header.jsx";
-import CarDetail from "./CarDetail.jsx";
 
 function App() {
-  const [selectedCar, setSelectedCar] = useState(null);
+  const [apiStatus, setApiStatus] = useState("checking");
 
-  const handleAddCar = (newCar) => {
-    // Logic to add the new car to the inventory
-    console.log("New car added:", newCar);
-  };
+  useEffect(() => {
+    checkApiConnection();
+  }, []);
 
-  const handleSelectCar = (car) => {
-    setSelectedCar(car);
+  const checkApiConnection = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/");
+      if (response.ok) {
+        setApiStatus("connected");
+      } else {
+        setApiStatus("error");
+      }
+    } catch (error) {
+      setApiStatus("offline");
+    }
   };
 
   return (
-    <div>
-      <header />
-      <CarForm onAddCar={handleAddCar} />
-      <CarList onSelectCar={handleSelectCar} />
-      {selectedCar && <CarDetail car={selectedCar} />}
-      <CarDetail car={selectedCar} />
-      <h1>Torque & Lustre Inventory</h1>
-    </div>
+    <Router>
+      <div className="app-container">
+        <Sidebar />
+        <div className="main-content">
+          <Header apiStatus={apiStatus} onRefresh={checkApiConnection} />
+          <div className="content-area">
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/cars" element={<Cars />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/orders" element={<Orders />} />
+            </Routes>
+          </div>
+        </div>
+      </div>
+    </Router>
   );
 }
 

@@ -1,13 +1,975 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Torque & Lustre | Premium Car Inventory</title>
+    <style>
+      /* Reset & Base */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      body {
+        background-color: #0a0a0a;
+        color: #f5f5f5;
+        line-height: 1.6;
+        min-height: 100vh;
+        background-image: radial-gradient(
+            circle at 25% 25%,
+            rgba(212, 175, 55, 0.03) 0%,
+            transparent 55%
+          ),
+          radial-gradient(
+            circle at 75% 75%,
+            rgba(212, 175, 55, 0.03) 0%,
+            transparent 55%
+          );
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      /* Typography */
+      h1,
+      h2,
+      h3 {
+        font-weight: 300;
+        letter-spacing: -0.02em;
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        background: linear-gradient(135deg, #f5f5f5 0%, #d4af37 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+        color: #f5f5f5;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+      }
+
+      h2::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, #d4af37, transparent);
+      }
+
+      h3 {
+        font-size: 1.25rem;
+        color: #d4af37;
+        margin-bottom: 0.5rem;
+      }
+
+      .subtitle {
+        color: #a0a0a0;
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+        font-weight: 300;
+      }
+
+      /* Header */
+      header {
+        padding: 3rem 0 2rem;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        margin-bottom: 3rem;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .brand-icon {
+        font-size: 2.5rem;
+        color: #d4af37;
+      }
+
+      .api-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(245, 245, 245, 0.05);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(212, 175, 55, 0.2);
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Dashboard Layout */
+      .dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      /* Cards */
+      .card {
+        background: rgba(20, 20, 20, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(245, 245, 245, 0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #d4af37, transparent);
+      }
+
+      .card:hover {
+        border-color: rgba(212, 175, 55, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Forms */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        color: #d4af37;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .form-input {
+        width: 100%;
+        background: rgba(245, 245, 245, 0.05);
+        border: 1px solid rgba(245, 245, 245, 0.1);
+        border-radius: 8px;
+        padding: 0.9rem 1rem;
+        color: #f5f5f5;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #d4af37;
+        background: rgba(212, 175, 55, 0.05);
+      }
+
+      .form-input::placeholder {
+        color: #666;
+      }
+
+      /* Buttons */
+      .btn {
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.1),
+          rgba(212, 175, 55, 0.05)
+        );
+        color: #d4af37;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.2),
+          rgba(212, 175, 55, 0.1)
+        );
+        border-color: #d4af37;
+        transform: translateY(-1px);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #d4af37, #b8941f);
+        color: #0a0a0a;
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #e0c158, #c9a42a);
+        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+      }
+
+      /* Data Lists */
+      .data-list {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 1rem;
+      }
+
+      .data-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .data-list::-webkit-scrollbar-track {
+        background: rgba(245, 245, 245, 0.05);
+        border-radius: 3px;
+      }
+
+      .data-list::-webkit-scrollbar-thumb {
+        background: rgba(212, 175, 55, 0.3);
+        border-radius: 3px;
+      }
+
+      .data-item {
+        background: rgba(245, 245, 245, 0.03);
+        border: 1px solid rgba(245, 245, 245, 0.05);
+        border-radius: 8px;
+        padding: 1.2rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+      }
+
+      .data-item:hover {
+        background: rgba(212, 175, 55, 0.05);
+        border-color: rgba(212, 175, 55, 0.2);
+      }
+
+      .data-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .car-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .car-make {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #f5f5f5;
+      }
+
+      .car-price {
+        color: #d4af37;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .car-details {
+        color: #a0a0a0;
+        font-size: 0.9rem;
+        display: flex;
+        gap: 1rem;
+      }
+
+      .car-details span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      /* Stats */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin: 3rem 0;
+      }
+
+      .stat-card {
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(245, 245, 245, 0.08);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 300;
+        color: #d4af37;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        color: #a0a0a0;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Footer */
+      footer {
+        margin-top: 4rem;
+        padding: 3rem 0;
+        border-top: 1px solid rgba(245, 245, 245, 0.08);
+        text-align: center;
+        color: #666;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1rem;
+      }
+
+      .footer-links a {
+        color: #d4af37;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      .footer-links a:hover {
+        text-decoration: underline;
+      }
+
+      /* Empty States */
+      .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #666;
+      }
+
+      .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+      }
+
+      /* Loading States */
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(212, 175, 55, 0.3);
+        border-radius: 50%;
+        border-top-color: #d4af37;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 0 1rem;
+        }
+
+        h1 {
+          font-size: 2.5rem;
+        }
+
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card {
+          padding: 1.5rem;
+        }
+      }
+
+      /* Icons */
+      .icon {
+        font-size: 1.2rem;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div class="container">
+      <!-- Header -->
+      <header>
+        <div class="brand">
+          <div class="brand-icon">🏎️</div>
+          <div>
+            <h1>Torque & Lustre</h1>
+            <p class="subtitle">Exclusive Automotive Inventory Management</p>
+          </div>
+        </div>
+        <div class="api-status">
+          <span class="status-indicator"></span>
+          <span id="apiStatus">API Status: Connecting...</span>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="carsCount">0</div>
+          <div class="stat-label">Vehicles in Stock</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="categoriesCount">0</div>
+          <div class="stat-label">Collections</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="ordersCount">0</div>
+          <div class="stat-label">Orders Placed</div>
+        </div>
+      </div>
+
+      <!-- Main Dashboard -->
+      <div class="dashboard">
+        <!-- Add Car Form -->
+        <div class="card">
+          <h2>Add Vehicle</h2>
+          <form id="addCarForm">
+            <div class="form-group">
+              <label class="form-label">Make</label>
+              <input
+                type="text"
+                class="form-input"
+                id="make"
+                placeholder="e.g., Aston Martin"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Model</label>
+              <input
+                type="text"
+                class="form-input"
+                id="model"
+                placeholder="e.g., DB11"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <div
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem"
+              >
+                <div>
+                  <label class="form-label">Year</label>
+                  <input
+                    type="number"
+                    class="form-input"
+                    id="year"
+                    placeholder="2024"
+                    min="1900"
+                    max="2030"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="form-label">Price ($)</label>
+                  <input
+                    type="number"
+                    class="form-input"
+                    id="price"
+                    placeholder="250,000"
+                    step="1000"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Color</label>
+              <input
+                type="text"
+                class="form-input"
+                id="color"
+                placeholder="Midnight Black"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%">
+              <span class="icon">➕</span> Add to Inventory
+            </button>
+          </form>
+        </div>
+
+        <!-- Car Inventory -->
+        <div class="card">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1.5rem;
+            "
+          >
+            <h2>Current Inventory</h2>
+            <button onclick="loadCars()" class="btn">
+              <span class="icon">🔄</span> Refresh
+            </button>
+          </div>
+          <div class="data-list" id="carsList">
+            <div class="empty-state">
+              <div class="empty-state-icon">🚗</div>
+              <p>No vehicles in inventory</p>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem">
+                Add your first vehicle using the form
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Dashboard -->
+      <div class="dashboard">
+        <!-- Add Category -->
+        <div class="card">
+          <h2>New Collection</h2>
+          <form id="addCategoryForm">
+            <div class="form-group">
+              <label class="form-label">Collection Name</label>
+              <input
+                type="text"
+                class="form-input"
+                id="categoryName"
+                placeholder="e.g., Grand Tourers"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <input
+                type="text"
+                class="form-input"
+                id="categoryDesc"
+                placeholder="Luxury touring vehicles"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%">
+              <span class="icon">📂</span> Create Collection
+            </button>
+          </form>
+        </div>
+
+        <!-- Categories -->
+        <div class="card">
+          <h2>Collections</h2>
+          <div class="data-list" id="categoriesList">
+            <div class="empty-state">
+              <div class="empty-state-icon">🗂️</div>
+              <p>No collections created</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <div class="card" style="margin-top: 2rem">
+        <h2>Recent Orders</h2>
+        <div class="data-list" id="ordersList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📦</div>
+            <p>No orders placed yet</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer>
+        <p>Torque & Lustre Inventory System © 2024</p>
+        <p style="color: #a0a0a0; margin-top: 0.5rem; font-size: 0.9rem">
+          Backend API running on
+          <span id="apiUrl" style="color: #d4af37">http://localhost:8000</span>
+        </p>
+        <div class="footer-links">
+          <a href="http://127.0.0.1:8000/docs" target="_blank"
+            >API Documentation</a
+          >
+          <a href="#" onclick="clearData()">Clear All Data</a>
+          <a href="#" onclick="loadSampleData()">Load Sample Data</a>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // API Configuration
+      const API_URL = "http://127.0.0.1:8000";
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        checkApiStatus();
+        loadAllData();
+        document.getElementById("apiUrl").textContent = API_URL;
+      });
+
+      // API Status Check
+      async function checkApiStatus() {
+        const statusElement = document.getElementById("apiStatus");
+        try {
+          const response = await fetch(`${API_URL}/`);
+          if (response.ok) {
+            statusElement.innerHTML =
+              '<span class="status-indicator"></span> API Status: Connected';
+          } else {
+            statusElement.innerHTML =
+              '<span class="status-indicator" style="background: #ef4444;"></span> API Status: Error';
+          }
+        } catch (error) {
+          statusElement.innerHTML =
+            '<span class="status-indicator" style="background: #ef4444;"></span> API Status: Offline';
+        }
+      }
+
+      // Load All Data
+      async function loadAllData() {
+        await Promise.all([loadCars(), loadCategories(), loadOrders()]);
+      }
+
+      // Load Cars
+      async function loadCars() {
+        try {
+          const response = await fetch(`${API_URL}/cars`);
+          const cars = await response.json();
+
+          document.getElementById("carsCount").textContent = cars.length;
+
+          const carsList = document.getElementById("carsList");
+          if (cars.length === 0) {
+            carsList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🚗</div>
+                            <p>No vehicles in inventory</p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Add your first vehicle using the form</p>
+                        </div>
+                    `;
+            return;
+          }
+
+          carsList.innerHTML = cars
+            .map(
+              (car) => `
+                    <div class="data-item">
+                        <div class="car-header">
+                            <div class="car-make">${car.make} ${car.model}</div>
+                            <div class="car-price">$${car.price.toLocaleString()}</div>
+                        </div>
+                        <div class="car-details">
+                            <span>📅 ${car.year}</span>
+                            <span>🎨 ${car.color || "Not specified"}</span>
+                            <span>⏰ ${new Date(
+                              car.created_at
+                            ).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `
+            )
+            .join("");
+        } catch (error) {
+          console.error("Error loading cars:", error);
+        }
+      }
+
+      // Load Categories
+      async function loadCategories() {
+        try {
+          const response = await fetch(`${API_URL}/catalogues`);
+          const categories = await response.json();
+
+          document.getElementById("categoriesCount").textContent =
+            categories.length;
+
+          const categoriesList = document.getElementById("categoriesList");
+          if (categories.length === 0) {
+            categoriesList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🗂️</div>
+                            <p>No collections created</p>
+                        </div>
+                    `;
+            return;
+          }
+
+          categoriesList.innerHTML = categories
+            .map(
+              (cat) => `
+                    <div class="data-item">
+                        <h3>${cat.name}</h3>
+                        <p style="color: #a0a0a0; margin-top: 0.5rem;">${
+                          cat.description || "No description"
+                        }</p>
+                        <div style="color: #666; font-size: 0.8rem; margin-top: 0.5rem;">
+                            Created: ${new Date(
+                              cat.created_at
+                            ).toLocaleDateString()}
+                        </div>
+                    </div>
+                `
+            )
+            .join("");
+        } catch (error) {
+          console.error("Error loading categories:", error);
+        }
+      }
+
+      // Load Orders
+      async function loadOrders() {
+        try {
+          const response = await fetch(`${API_URL}/orders`);
+          const orders = await response.json();
+
+          document.getElementById("ordersCount").textContent = orders.length;
+
+          const ordersList = document.getElementById("ordersList");
+          if (orders.length === 0) {
+            ordersList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <p>No orders placed yet</p>
+                        </div>
+                    `;
+            return;
+          }
+
+          ordersList.innerHTML = orders
+            .map(
+              (order) => `
+                    <div class="data-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3>Order #${order.id}</h3>
+                                <p style="color: #a0a0a0; margin-top: 0.25rem;">
+                                    Product ID: ${
+                                      order.product_id
+                                    } • Quantity: ${order.quantity}
+                                </p>
+                            </div>
+                            <div class="car-price">$${
+                              order.total_price?.toLocaleString() || "0"
+                            }</div>
+                        </div>
+                        <div style="color: #666; font-size: 0.8rem; margin-top: 0.5rem;">
+                            Placed: ${new Date(
+                              order.created_at
+                            ).toLocaleString()}
+                        </div>
+                    </div>
+                `
+            )
+            .join("");
+        } catch (error) {
+          console.error("Error loading orders:", error);
+        }
+      }
+
+      // Form Handlers
+      document
+        .getElementById("addCarForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const button = this.querySelector("button");
+          const originalText = button.innerHTML;
+          button.innerHTML = '<span class="loading"></span> Adding...';
+          button.disabled = true;
+
+          const carData = {
+            make: document.getElementById("make").value.trim(),
+            model: document.getElementById("model").value.trim(),
+            year: parseInt(document.getElementById("year").value),
+            price: parseFloat(document.getElementById("price").value),
+            color: document.getElementById("color").value.trim() || null,
+          };
+
+          try {
+            const response = await fetch(`${API_URL}/cars`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(carData),
+            });
+
+            if (response.ok) {
+              document.getElementById("addCarForm").reset();
+              await loadAllData();
+              showNotification("Vehicle added successfully", "success");
+            } else {
+              const error = await response.json();
+              showNotification(
+                error.detail || "Failed to add vehicle",
+                "error"
+              );
+            }
+          } catch (error) {
+            showNotification(
+              "Network error. Please check API connection.",
+              "error"
+            );
+          } finally {
+            button.innerHTML = originalText;
+            button.disabled = false;
+          }
+        });
+
+      document
+        .getElementById("addCategoryForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const button = this.querySelector("button");
+          const originalText = button.innerHTML;
+          button.innerHTML = '<span class="loading"></span> Creating...';
+          button.disabled = true;
+
+          const categoryData = {
+            name: document.getElementById("categoryName").value.trim(),
+            description:
+              document.getElementById("categoryDesc").value.trim() || null,
+          };
+
+          try {
+            const response = await fetch(`${API_URL}/catalogues`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(categoryData),
+            });
+
+            if (response.ok) {
+              document.getElementById("addCategoryForm").reset();
+              await loadCategories();
+              showNotification("Collection created successfully", "success");
+            } else {
+              const error = await response.json();
+              showNotification(
+                error.detail || "Failed to create collection",
+                "error"
+              );
+            }
+          } catch (error) {
+            showNotification(
+              "Network error. Please check API connection.",
+              "error"
+            );
+          } finally {
+            button.innerHTML = originalText;
+            button.disabled = false;
+          }
+        });
+
+      // Helper Functions
+      function showNotification(message, type = "info") {
+        // Create notification element
+        const notification = document.createElement("div");
+        notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${
+                  type === "success"
+                    ? "rgba(16, 185, 129, 0.1)"
+                    : "rgba(239, 68, 68, 0.1)"
+                };
+                border: 1px solid ${
+                  type === "success"
+                    ? "rgba(16, 185, 129, 0.3)"
+                    : "rgba(239, 68, 68, 0.3)"
+                };
+                color: ${type === "success" ? "#10b981" : "#ef4444"};
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.animation = "slideOut 0.3s ease";
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+
+      // Add CSS for notifications
+      const style = document.createElement("style");
+      style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+      document.head.appendChild(style);
+
+      // Utility Functions
+      async function clearData() {
+        if (
+          confirm(
+            "Are you sure you want to clear all data? This cannot be undone."
+          )
+        ) {
+          // Note: You'd need DELETE endpoints in your API for this
+          showNotification(
+            "Clear data functionality requires DELETE endpoints",
+            "error"
+          );
+        }
+      }
+
+      async function loadSampleData() {
+        // This would create sample data - implement based on your API
+        showNotification("Sample data loading not implemented", "info");
+      }
+
+      // Auto-refresh every 30 seconds
+      setInterval(loadAllData, 30000);
+    </script>
   </body>
 </html>
